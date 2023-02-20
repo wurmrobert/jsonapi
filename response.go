@@ -340,7 +340,7 @@ func resolveNodeID(node *Node, fieldValue reflect.Value, structField reflect.Str
 }
 
 func resolveNodeAttribute(node *Node, fieldValue reflect.Value, args []string) *Node {
-	var omitEmpty, iso8601 bool
+	var omitEmpty, iso8601, rfc3339 bool
 
 	if len(args) > 2 {
 		for _, arg := range args[2:] {
@@ -349,6 +349,8 @@ func resolveNodeAttribute(node *Node, fieldValue reflect.Value, args []string) *
 				omitEmpty = true
 			case annotationISO8601:
 				iso8601 = true
+			case annotationRFC3339:
+				rfc3339 = true
 			}
 		}
 	}
@@ -367,6 +369,8 @@ func resolveNodeAttribute(node *Node, fieldValue reflect.Value, args []string) *
 
 		if iso8601 {
 			node.Attributes[args[1]] = t.UTC().Format(iso8601TimeFormat)
+		} else if rfc3339 {
+			node.Attributes[args[1]] = t.UTC().Format(time.RFC3339)
 		} else {
 			node.Attributes[args[1]] = t.Unix()
 		}
@@ -387,6 +391,8 @@ func resolveNodeAttribute(node *Node, fieldValue reflect.Value, args []string) *
 
 			if iso8601 {
 				node.Attributes[args[1]] = t.UTC().Format(iso8601TimeFormat)
+			} else if rfc3339 {
+				node.Attributes[args[1]] = tm.UTC().Format(time.RFC3339)
 			} else {
 				node.Attributes[args[1]] = t.Unix()
 			}
@@ -408,6 +414,8 @@ func resolveNodeAttribute(node *Node, fieldValue reflect.Value, args []string) *
 
 			if iso8601 {
 				node.Attributes[args[1]] = nt.Time.UTC().Format(iso8601TimeFormat)
+			} else if rfc3339 {
+				node.Attributes[args[1]] = nt.Time.UTC().Format(time.RFC3339)
 			} else {
 				node.Attributes[args[1]] = nt.Time.Unix()
 			}
