@@ -522,8 +522,12 @@ func handleTime(attribute interface{}, args []string, fieldValue reflect.Value) 
 			return reflect.ValueOf(time.Now()), ErrInvalidRFC3339
 		}
 
-		if fieldValue.Kind() == reflect.Ptr {
+		if _, ok := fieldValue.Interface().(sql.NullTime); ok {
 			return reflect.ValueOf(sql.NullTime{Time: t, Valid: true}), nil
+		}
+
+		if fieldValue.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&t), nil
 		}
 
 		return reflect.ValueOf(t), nil
