@@ -71,24 +71,23 @@ func newErrUnsupportedPtrType(rf reflect.Value, t reflect.Type, structField refl
 // For example you could pass it, in, req.Body and, model, a BlogPost
 // struct instance to populate in an http handler,
 //
-//   func CreateBlog(w http.ResponseWriter, r *http.Request) {
-//   	blog := new(Blog)
+//	func CreateBlog(w http.ResponseWriter, r *http.Request) {
+//		blog := new(Blog)
 //
-//   	if err := jsonapi.UnmarshalPayload(r.Body, blog); err != nil {
-//   		http.Error(w, err.Error(), 500)
-//   		return
-//   	}
+//		if err := jsonapi.UnmarshalPayload(r.Body, blog); err != nil {
+//			http.Error(w, err.Error(), 500)
+//			return
+//		}
 //
-//   	// ...do stuff with your blog...
+//		// ...do stuff with your blog...
 //
-//   	w.Header().Set("Content-Type", jsonapi.MediaType)
-//   	w.WriteHeader(201)
+//		w.Header().Set("Content-Type", jsonapi.MediaType)
+//		w.WriteHeader(201)
 //
-//   	if err := jsonapi.MarshalPayload(w, blog); err != nil {
-//   		http.Error(w, err.Error(), 500)
-//   	}
-//   }
-//
+//		if err := jsonapi.MarshalPayload(w, blog); err != nil {
+//			http.Error(w, err.Error(), 500)
+//		}
+//	}
 //
 // Visit https://github.com/google/jsonapi#create for more info.
 //
@@ -521,6 +520,10 @@ func handleTime(attribute interface{}, args []string, fieldValue reflect.Value) 
 		t, err := time.Parse(time.RFC3339, v.Interface().(string))
 		if err != nil {
 			return reflect.ValueOf(time.Now()), ErrInvalidRFC3339
+		}
+
+		if _, ok := fieldValue.Interface().(sql.NullTime); ok {
+			return reflect.ValueOf(sql.NullTime{Time: t, Valid: true}), nil
 		}
 
 		if fieldValue.Kind() == reflect.Ptr {
